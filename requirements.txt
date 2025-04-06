@@ -1,0 +1,8 @@
+flask
+google-generativeai
+beautifulsoup4
+pydub
+speechrecognition
+requests
+yt-dlp
+python-dotenv

@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>QuickSum - Video & URL Summarizer</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      :root {
+        --primary: #4361ee;
+        --primary-dark: #3a56d4;
+        --secondary: #3f37c9;
+        --accent: #4cc9f0;
+        --success: #2dc653;
+        --warning: #f48c06;
+        --danger: #e5383b;
+        --light: #f8f9fa;
+        --dark: #212529;
+        --gray: #6c757d;
+        --light-gray: #e9ecef;
+        --border-radius: 12px;
+        --box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        --transition: all 0.3s ease;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+          Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      }
+
+      body {
+        background-color: #f9fafb;
+        color: var(--dark);
+        line-height: 1.6;
+      }
+
+      .header {
+        background: linear-gradient(
+          135deg,
+          var(--primary) 0%,
+          var(--secondary) 100%
+        );
+        color: white;
+        padding: 2rem 0 4rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .header::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
+        opacity: 0.3;
+      }
+
+      .brand {
+        font-size: 2.6rem;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+        margin-bottom: 0.5rem;
+      }
+
+      .tagline {
+        font-size: 1.2rem;
+        font-weight: 300;
+        opacity: 0.9;
+        max-width: 600px;
+        margin: 0 auto 1rem;
+      }
+
+      .main-container {
+        max-width: 1200px;
+        margin: -60px auto 2rem;
+        padding: 0 1.5rem;
+        position: relative;
+        z-index: 10;
+      }
+
+      .tabs {
+        display: flex;
+        background-color: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+        overflow: hidden;
+        margin-bottom: 2rem;
+      }
+
+      .tab {
+        flex: 1;
+        padding: 1.2rem;
+        text-align: center;
+        font-weight: 600;
+        cursor: pointer;
+        transition: var(--transition);
+        color: var(--gray);
+        border-bottom: 3px solid transparent;
+      }
+
+      .tab.active {
+        color: var(--primary);
+        border-bottom: 3px solid var(--primary);
+        background-color: rgba(67, 97, 238, 0.05);
+      }
+
+      .tab:hover:not(.active) {
+        background-color: var(--light-gray);
+      }
+
+      .tab-content {
+        display: none;
+        animation: fadeIn 0.5s;
+      }
+
+      .tab-content.active {
+        display: block;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .card {
+        background-color: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+        padding: 2rem;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .card-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1.5rem;
+      }
+
+      .card-icon {
+        width: 45px;
+        height: 45px;
+        background-color: rgba(67, 97, 238, 0.1);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+        color: var(--primary);
+        font-size: 1.2rem;
+      }
+
+      .card-title {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--dark);
+      }
+
+      .upload-zone {
+        border: 2px dashed var(--light-gray);
+        border-radius: var(--border-radius);
+        padding: 2rem;
+        text-align: center;
+        transition: var(--transition);
+        margin-bottom: 1rem;
+        cursor: pointer;
+        position: relative;
+      }
+
+      .upload-zone:hover {
+        border-color: var(--primary);
+        background-color: rgba(67, 97, 238, 0.05);
+      }
+
+      .upload-zone.drag-over {
+        border-color: var(--primary);
+        background-color: rgba(67, 97, 238, 0.1);
+        transform: scale(1.02);
+      }
+
+      .upload-icon {
+        font-size: 3rem;
+        color: var(--primary);
+        margin-bottom: 1rem;
+      }
+
+      .upload-text {
+        font-size: 1.2rem;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+      }
+
+      .upload-info {
+        color: var(--gray);
+        font-size: 0.9rem;
+      }
+
+      input[type="file"] {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: pointer;
+      }
+
+      .input-group {
+        margin-bottom: 1.5rem;
+      }
+
+      .input-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: var(--dark);
+      }
+
+      .input-field {
+        width: 100%;
+        padding: 1rem;
+        border: 2px solid var(--light-gray);
+        border-radius: var(--border-radius);
+        font-size: 1rem;
+        transition: var(--transition);
+      }
+
+      .input-field:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+      }
+
+      .url-form {
+        display: flex;
+        gap: 1rem;
+      }
+
+      .url-form .input-field {
+        flex: 1;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.8rem 1.5rem;
+        font-size: 1rem;
+        font-weight: 600;
+        border-radius: var(--border-radius);
+        transition: var(--transition);
+        cursor: pointer;
+        border: none;
+        white-space: nowrap;
+      }
+
+      .btn-primary {
+        background-color: var(--primary);
+        color: white;
+      }
+
+      .btn-primary:hover {
+        background-color: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
+      }
+
+      .btn-primary:active {
+        transform: translateY(0);
+      }
+
+      .btn-outline {
+        background-color: transparent;
+        border: 2px solid var(--primary);
+        color: var(--primary);
+      }
+
+      .btn-outline:hover {
+        background-color: var(--primary);
+        color: white;
+      }
+
+      .btn-icon {
+        margin-right: 0.5rem;
+      }
+
+      .summary-section {
+        margin-top: 3rem;
+      }
+
+      .summary-card {
+        display: none;
+        background-color: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+        padding: 0;
+        overflow: hidden;
+        animation: slideUp 0.5s;
+      }
+
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .summary-header {
+        background: linear-gradient(
+          135deg,
+          var(--primary) 0%,
+          var(--secondary) 100%
+        );
+        color: white;
+        padding: 1.2rem 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .summary-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin: 0;
+      }
+
+      .summary-actions {
+        display: flex;
+        gap: 0.5rem;
+      }
+
+      .summary-action-btn {
+        background-color: rgba(255, 255, 255, 0.2);
+        color: white;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: var(--transition);
+      }
+
+      .summary-action-btn:hover {
+        background-color: rgba(255, 255, 255, 0.4);
+      }
+
+      .summary-content {
+        padding: 2rem;
+        max-height: 400px;
+        overflow-y: auto;
+        line-height: 1.7;
+      }
+
+      .summary-content p {
+        margin-bottom: 1rem;
+      }
+
+      .summary-meta {
+        display: flex;
+        align-items: center;
+        border-top: 1px solid var(--light-gray);
+        padding: 1rem 2rem;
+        color: var(--gray);
+        font-size: 0.9rem;
+      }
+
+      .summary-meta-item {
+        display: flex;
+        align-items: center;
+        margin-right: 1.5rem;
+      }
+
+      .summary-meta-icon {
+        margin-right: 0.5rem;
+      }
+
+      .loading {
+        display: none;
+        padding: 2rem;
+        text-align: center;
+      }
+
+      .loading-spinner {
+        display: inline-block;
+        width: 60px;
+        height: 60px;
+        margin-bottom: 1rem;
+      }
+
+      .loading-spinner:after {
+        content: " ";
+        display: block;
+        width: 48px;
+        height: 48px;
+        margin: 8px;
+        border-radius: 50%;
+        border: 6px solid var(--primary);
+        border-color: var(--primary) transparent var(--primary) transparent;
+        animation: spinner 1.2s linear infinite;
+      }
+
+      @keyframes spinner {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .loading-text {
+        font-size: 1.2rem;
+        color: var(--gray);
+        font-weight: 500;
+      }
+
+      .error-message {
+        display: none;
+        background-color: rgba(229, 56, 59, 0.1);
+        color: var(--danger);
+        padding: 1rem;
+        border-radius: var(--border-radius);
+        margin-bottom: 1rem;
+        font-weight: 500;
+      }
+
+      .success-message {
+        display: none;
+        background-color: rgba(45, 198, 83, 0.1);
+        color: var(--success);
+        padding: 1rem;
+        border-radius: var(--border-radius);
+        margin-bottom: 1rem;
+        font-weight: 500;
+      }
+
+      .footer {
+        background-color: var(--light);
+        padding: 3rem 0;
+        text-align: center;
+        margin-top: 3rem;
+      }
+
+      .features {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-top: 3rem;
+      }
+
+      .feature-card {
+        background-color: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+        padding: 2rem;
+        text-align: center;
+        transition: var(--transition);
+      }
+
+      .feature-card:hover {
+        transform: translateY(-5px);
+      }
+
+      .feature-icon {
+        width: 70px;
+        height: 70px;
+        background-color: rgba(67, 97, 238, 0.1);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        color: var(--primary);
+        font-size: 1.8rem;
+      }
+
+      .feature-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+      }
+
+      .feature-text {
+        color: var(--gray);
+        font-size: 0.95rem;
+      }
+
+      @media (max-width: 768px) {
+        .brand {
+          font-size: 2.2rem;
+        }
+        .tagline {
+          font-size: 1rem;
+        }
+        .main-container {
+          padding: 0 1rem;
+        }
+        .card {
+          padding: 1.5rem;
+        }
+        .url-form {
+          flex-direction: column;
+        }
+        .stats {
+          flex-direction: column;
+          gap: 0.5rem;
+        }
+        .summary-header {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 1rem;
+        }
+        .summary-actions {
+          align-self: flex-end;
+        }
+      }
+
+      /* Add these cool features */
+      .progress-bar {
+        height: 6px;
+        width: 0%;
+        background: linear-gradient(90deg, var(--primary), var(--accent));
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 1000;
+        transition: width 0.3s;
+      }
+
+      /* Add cool metadata display for summaries */
+      .summary-stats {
+        display: flex;
+        gap: 1.5rem;
+        padding: 1rem 2rem;
+        background-color: #f9fafb;
+        border-top: 1px solid var(--light-gray);
+      }
+
+      .summary-stat {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .summary-stat-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--primary);
+      }
+
+      .summary-stat-label {
+        font-size: 0.85rem;
+        color: var(--gray);
+      }
+
+      /* Video preview for uploaded videos */
+      .video-preview {
+        display: none;
+        margin-top: 1rem;
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+
+      .video-player {
+        width: 100%;
+        max-height: 300px;
+        background-color: #000;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="progress-bar" id="progressBar"></div>
+
+    <header class="header">
+      <h1 class="brand">QuickSum</h1>
+      <p class="tagline">
+        Quickly summarize videos and web content with AI. Save time, extract
+        insights.
+      </p>
+      <!-- Removed stats section -->
+      <!--
+      <div class="stats">
+        <div class="stat-item">
+          <i class="fas fa-film"></i> Videos Summarized: 5,492
+        </div>
+        <div class="stat-item">
+          <i class="fas fa-globe"></i> URLs Analyzed: 12,849
+        </div>
+        <div class="stat-item">
+          <i class="fas fa-clock"></i> Time Saved: 198,450 min
+        </div>
+      </div>
+      -->
+    </header>
+
+    <div class="main-container">
+      <div class="tabs">
+        <div class="tab active" data-tab="upload-video">
+          <i class="fas fa-film"></i> Upload Video
+        </div>
+        <div class="tab" data-tab="youtube-url">
+          <i class="fab fa-youtube"></i> YouTube URL
+        </div>
+        <div class="tab" data-tab="web-url">
+          <i class="fas fa-globe"></i> Web URL
+        </div>
+      </div>
+
+      <div class="tab-content active" id="upload-video">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon">
+              <i class="fas fa-cloud-upload-alt"></i>
+            </div>
+            <h2 class="card-title">Upload Video File</h2>
+          </div>
+
+          <div class="upload-zone" id="dropZone">
+            <div class="upload-icon">
+              <i class="fas fa-cloud-upload-alt"></i>
+            </div>
+            <h3 class="upload-text">Drag & Drop your video here</h3>
+            <p class="upload-info">
+              or click to browse (MP4, AVI, MOV, etc. - Max 50MB)
+            </p>
+            <input type="file" id="videoFile" accept="video/*" />
+          </div>
+
+          <div class="video-preview" id="videoPreview">
+            <video id="videoPlayer" class="video-player" controls></video>
+          </div>
+
+          <div class="error-message" id="uploadError"></div>
+          <div class="success-message" id="uploadSuccess"></div>
+
+          <button
+            class="btn btn-primary"
+            id="uploadBtn"
+            onclick="uploadVideo()"
+          >
+            <i class="fas fa-magic btn-icon"></i> Analyze & Summarize
+          </button>
+        </div>
+      </div>
+
+      <div class="tab-content" id="youtube-url">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon">
+              <i class="fab fa-youtube"></i>
+            </div>
+            <h2 class="card-title">YouTube Video</h2>
+          </div>
+
+          <div class="input-group">
+            <label class="input-label" for="youtubeUrl"
+              >Enter YouTube URL</label
+            >
+            <div class="url-form">
+              <input
+                type="text"
+                id="youtubeUrl"
+                class="input-field"
+                placeholder="https://www.youtube.com/watch?v=..."
+              />
+              <button class="btn btn-primary" onclick="summarizeYouTube()">
+                <i class="fas fa-search btn-icon"></i> Summarize
+              </button>
+            </div>
+          </div>
+
+          <div class="error-message" id="youtubeError"></div>
+          <div class="success-message" id="youtubeSuccess"></div>
+        </div>
+      </div>
+
+      <div class="tab-content" id="web-url">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon">
+              <i class="fas fa-globe"></i>
+            </div>
+            <h2 class="card-title">Web Content</h2>
+          </div>
+
+          <div class="input-group">
+            <label class="input-label" for="webUrl">Enter Website URL</label>
+            <div class="url-form">
+              <input
+                type="text"
+                id="webUrl"
+                class="input-field"
+                placeholder="https://example.com/article"
+              />
+              <button class="btn btn-primary" onclick="summarizeWebUrl()">
+                <i class="fas fa-search btn-icon"></i> Summarize
+              </button>
+            </div>
+          </div>
+
+          <div class="error-message" id="webError"></div>
+          <div class="success-message" id="webSuccess"></div>
+        </div>
+      </div>
+
+      <div class="loading" id="loading">
+        <div class="loading-spinner"></div>
+        <p class="loading-text">Processing your content...</p>
+        <p id="loadingMessage">
+          This may take a moment depending on the content length.
+        </p>
+      </div>
+
+      <div class="summary-section">
+        <div class="summary-card" id="summaryCard">
+          <div class="summary-header">
+            <h3 class="summary-title">Content Summary</h3>
+            <div class="summary-actions">
+              <div
+                class="summary-action-btn"
+                onclick="copyToClipboard()"
+                title="Copy to clipboard"
+              >
+                <i class="fas fa-copy"></i>
+              </div>
+              <div
+                class="summary-action-btn"
+                onclick="downloadSummary()"
+                title="Download summary"
+              >
+                <i class="fas fa-download"></i>
+              </div>
+              <div
+                class="summary-action-btn"
+                onclick="shareSummary()"
+                title="Share summary"
+              >
+                <i class="fas fa-share-alt"></i>
+              </div>
+            </div>
+          </div>
+          <div class="summary-content" id="summary">
+            <!-- Summary content will be displayed here -->
+          </div>
+          <div class="summary-stats">
+            <div class="summary-stat">
+              <div class="summary-stat-value" id="wordCount">0</div>
+              <div class="summary-stat-label">Words</div>
+            </div>
+            <div class="summary-stat">
+              <div class="summary-stat-value" id="readTime">0</div>
+              <div class="summary-stat-label">Min Read</div>
+            </div>
+            <div class="summary-stat">
+              <div class="summary-stat-value" id="compressionRate">0%</div>
+              <div class="summary-stat-label">Compression</div>
+            </div>
+          </div>
+          <div class="summary-meta">
+            <div class="summary-meta-item">
+              <i class="fas fa-calendar summary-meta-icon"></i>
+              <span id="summaryDate">April 5, 2025</span>
+            </div>
+            <div class="summary-meta-item">
+              <i class="fas fa-robot summary-meta-icon"></i>
+              <span>Powered by AI</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="features">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-bolt"></i>
+          </div>
+          <h3 class="feature-title">Fast Processing</h3>
+          <p class="feature-text">
+            Get summaries in seconds, not minutes. Our AI processes content
+            rapidly to save you time.
+          </p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-brain"></i>
+          </div>
+          <h3 class="feature-title">Smart Extraction</h3>
+          <p class="feature-text">
+            Our AI identifies key points and critical information, focusing on
+            what matters most.
+          </p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-lock"></i>
+          </div>
+          <h3 class="feature-title">Secure & Private</h3>
+          <p class="feature-text">
+            Your content is processed securely and never stored permanently.
+            Your privacy matters.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <footer class="footer">
+      <p>&copy; 2023 QuickSum. All rights reserved.</p>
+    </footer>
+
+    <script>
+      // JavaScript for tab switching
+      const tabs = document.querySelectorAll(".tab");
+      const tabContents = document.querySelectorAll(".tab-content");
+
+      tabs.forEach((tab) => {
+        tab.addEventListener("click", () => {
+          tabs.forEach((t) => t.classList.remove("active"));
+          tabContents.forEach((tc) => tc.classList.remove("active"));
+
+          tab.classList.add("active");
+          document.getElementById(tab.dataset.tab).classList.add("active");
+        });
+      });
+
+      // Drag-and-drop and file upload functionality
+      const dropZone = document.getElementById("dropZone");
+      const videoFileInput = document.getElementById("videoFile");
+      const videoPreview = document.getElementById("videoPreview");
+      const videoPlayer = document.getElementById("videoPlayer");
+
+      // Prevent default drag behaviors
+      ["dragenter", "dragover", "dragleave", "drop"].forEach((eventName) => {
+        dropZone.addEventListener(eventName, preventDefaults, false);
+        document.body.addEventListener(eventName, preventDefaults, false);
+      });
+
+      function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+
+      // Handle drop zone highlighting
+      ["dragenter", "dragover"].forEach((eventName) => {
+        dropZone.addEventListener(eventName, highlight, false);
+      });
+
+      ["dragleave", "drop"].forEach((eventName) => {
+        dropZone.addEventListener(eventName, unhighlight, false);
+      });
+
+      function highlight(e) {
+        dropZone.classList.add("drag-over");
+      }
+
+      function unhighlight(e) {
+        dropZone.classList.remove("drag-over");
+      }
+
+      // Handle dropped files
+      dropZone.addEventListener("drop", handleDrop, false);
+
+      function handleDrop(e) {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        handleFiles(files);
+      }
+
+      // Handle file input change
+      videoFileInput.addEventListener("change", function () {
+        handleFiles(this.files);
+      });
+
+      function handleFiles(files) {
+        if (files.length === 0) return;
+
+        const file = files[0];
+
+        // Check if file is video
+        if (!file.type.startsWith("video/")) {
+          document.getElementById("uploadError").textContent =
+            "Please upload a video file.";
+          document.getElementById("uploadError").style.display = "block";
+          return;
+        }
+
+        // Check file size (50MB limit)
+        if (file.size > 50 * 1024 * 1024) {
+          document.getElementById("uploadError").textContent =
+            "File size exceeds 50MB limit.";
+          document.getElementById("uploadError").style.display = "block";
+          return;
+        }
+
+        // Store the file in a global variable for the upload function
+        window.selectedFile = file;
+
+        // Show video preview
+        videoPlayer.src = URL.createObjectURL(file);
+        videoPreview.style.display = "block";
+
+        // Clear any previous errors
+        document.getElementById("uploadError").style.display = "none";
+      }
+
+      function uploadVideo() {
+        // Get file either from the stored drag-drop file or from the file input
+        const videoFile = window.selectedFile || videoFileInput.files[0];
+
+        if (!videoFile) {
+          document.getElementById("uploadError").textContent =
+            "Please select a video file to upload.";
+          document.getElementById("uploadError").style.display = "block";
+          return;
+        }
+
+        // Show loading state
+        document.getElementById("loading").style.display = "block";
+        document.getElementById("uploadError").style.display = "none";
+        document.getElementById("uploadSuccess").style.display = "none";
+
+        const formData = new FormData();
+        formData.append("file", videoFile);
+
+        fetch("/upload", {
+          method: "POST",
+          body: formData,
+        })
+          .then((response) => {
+            if (!response.ok) {
+              return response.text().then((text) => {
+                throw new Error(
+                  text || `HTTP error! status: ${response.status}`
+                );
+              });
+            }
+            return response.json();
+          })
+          .then((data) => {
+            document.getElementById("loading").style.display = "none";
+            if (data.error) {
+              document.getElementById("uploadError").textContent = data.error;
+              document.getElementById("uploadError").style.display = "block";
+            } else {
+              // Update summary display
+              const sanitizedSummary = data.summary
+                .replace(/\*\*/g, "")
+                .replace(/#/g, "")
+                .replace(/\*/g, "");
+
+              document.getElementById("summary").innerText = sanitizedSummary;
+              document.getElementById("summaryCard").style.display = "block";
+
+              // Update stats
+              const words = sanitizedSummary.split(/\s+/).length;
+              document.getElementById("wordCount").textContent = words;
+              document.getElementById("readTime").textContent = Math.ceil(
+                words / 200
+              );
+              document.getElementById("compressionRate").textContent =
+                "~" + Math.round((1 - words / 1000) * 100) + "%";
+              document.getElementById("summaryDate").textContent =
+                new Date().toLocaleDateString();
+
+              // Show success message
+              document.getElementById("uploadSuccess").textContent =
+                "Video successfully processed!";
+              document.getElementById("uploadSuccess").style.display = "block";
+
+              // Clear the stored file
+              window.selectedFile = null;
+            }
+          })
+          .catch((error) => {
+            document.getElementById("loading").style.display = "none";
+            document.getElementById("uploadError").textContent =
+              "Error uploading video: " + error.message;
+            document.getElementById("uploadError").style.display = "block";
+          });
+      }
+
+      function summarizeYouTube() {
+        const youtubeUrl = document.getElementById("youtubeUrl").value.trim();
+        if (!youtubeUrl) {
+          alert("Please enter a valid YouTube URL.");
+          return;
+        }
+
+        document.getElementById("loading").style.display = "block";
+
+        fetch("/summarize-youtube", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ url: youtubeUrl }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            document.getElementById("loading").style.display = "none";
+            if (data.error) {
+              alert(data.error);
+            } else {
+              // Sanitize the summary to remove markdown-like formatting
+              const sanitizedSummary = data.summary
+                .replace(/\*\*/g, "") // Remove bold (**)
+                .replace(/#/g, "") // Remove headings (#, ##, ###, etc.)
+                .replace(/\*/g, ""); // Remove bullet points (*)
+              document.getElementById("summary").innerText = sanitizedSummary;
+              document.getElementById("summaryCard").style.display = "block";
+            }
+          })
+          .catch((error) => {
+            document.getElementById("loading").style.display = "none";
+            alert("An error occurred: " + error.message);
+          });
+      }
+
+      function summarizeWebUrl() {
+        const webUrl = document.getElementById("webUrl").value.trim();
+        if (!webUrl) {
+          alert("Please enter a valid Website URL.");
+          return;
+        }
+
+        document.getElementById("loading").style.display = "block";
+
+        fetch("/summarize-url", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ url: webUrl }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            document.getElementById("loading").style.display = "none";
+            if (data.error) {
+              alert(data.error);
+            } else {
+              // Sanitize the summary to remove markdown-like formatting
+              const sanitizedSummary = data.summary
+                .replace(/\*\*/g, "") // Remove bold (**)
+                .replace(/#/g, "") // Remove headings (#, ##, ###, etc.)
+                .replace(/\*/g, ""); // Remove bullet points (*)
+              document.getElementById("summary").innerText = sanitizedSummary;
+              document.getElementById("summaryCard").style.display = "block";
+            }
+          })
+          .catch((error) => {
+            document.getElementById("loading").style.display = "none";
+            alert("An error occurred: " + error.message);
+          });
+      }
+
+      function loadExample(url) {
+        alert(`Load example functionality for URL: ${url}`);
+      }
+
+      function copyToClipboard() {
+        const summaryText = document.getElementById("summary").innerText;
+        if (!summaryText) {
+          alert("No summary content to copy.");
+          return;
+        }
+
+        navigator.clipboard
+          .writeText(summaryText)
+          .then(() => {
+            // Show temporary success indicator
+            const copyBtn = document.querySelector(
+              '.summary-action-btn[title="Copy to clipboard"] i'
+            );
+            copyBtn.classList.remove("fa-copy");
+            copyBtn.classList.add("fa-check");
+            setTimeout(() => {
+              copyBtn.classList.remove("fa-check");
+              copyBtn.classList.add("fa-copy");
+            }, 2000);
+          })
+          .catch((err) => {
+            alert("Failed to copy text: " + err);
+          });
+      }
+
+      function downloadSummary() {
+        alert("Download summary functionality is not implemented yet.");
+      }
+
+      function shareSummary() {
+        alert("Share summary functionality is not implemented yet.");
+      }
+    </script>
+  </body>
+</html>
