@@ -208,5 +208,6 @@ def internal_server_error(error):
     return jsonify({"error": "Internal server error. Please try again later."}), 500
 
 if __name__ == "__main__":
-    port = int(os.getenv("PORT", 5000))  # Default to 5000 if not set
-    app.run(host='0.0.0.0', port=port, debug=True)
+    # Get port from environment variable with fallback to 10000 (Render's preferred port)
+    port = int(os.getenv("PORT", 10000))
+    app.run(host='0.0.0.0', port=port, debug=False)
