@@ -6,3 +6,4 @@ speechrecognition
 requests
 yt-dlp
 python-dotenv
+youtube-transcript-api

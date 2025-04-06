@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, url_for
 import os
 import re
 import tempfile
@@ -11,7 +11,7 @@ from summarizer import summarize_text, summarize_youtube_video, summarize_video_
 # Load environment variables
 load_dotenv()
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static')
 
 def extract_video_id(url):
     """Extract YouTube video ID from various YouTube URL formats."""
