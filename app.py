@@ -211,3 +211,4 @@ if __name__ == "__main__":
     # Get port from environment variable with fallback to 10000 (Render's preferred port)
     port = int(os.getenv("PORT", 10000))
     app.run(host='0.0.0.0', port=port, debug=False)
+    
