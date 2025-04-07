@@ -125,68 +125,56 @@ def summarize_text(text):
 def get_youtube_info(video_url):
     """Get YouTube video information and transcript."""
     try:
-        ydl_opts = {
-            'quiet': True,
-            'no_warnings': True,
-            'extract_flat': True,
-            # Add cookie handling
-            'cookiesfrombrowser': ('chrome',),  # Use Chrome cookies
-            # Add more options to avoid bot detection
-            'random_user_agent': True,
-            'nocheckcertificate': True,
-            'ignoreerrors': True,
-            'no_color': True,
-            'geo_bypass': True,
-            'socket_timeout': 30,
-        }
-        
+        # Extract video ID
+        video_id = None
+        if 'youtu.be' in video_url:
+            video_id = video_url.split('/')[-1].split('?')[0]
+        elif 'watch?v=' in video_url:
+            video_id = video_url.split('watch?v=')[1].split('&')[0]
+            
+        if not video_id:
+            raise ValueError("Could not extract video ID from URL")
+
+        # Try to get transcript directly first
         try:
-            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                video_info = ydl.extract_info(video_url, download=False)
-                
-                if not video_info:
-                    # Try alternative method using just transcript API
-                    video_id = video_url.split('v=')[-1][:11]
-                    transcript = YouTubeTranscriptApi.get_transcript(video_id, languages=['en'])
-                    transcript_text = ' '.join([entry['text'] for entry in transcript])
-                    
-                    return {
-                        'title': 'YouTube Video',
-                        'description': '',
-                        'duration': 0,
-                        'transcript': transcript_text
-                    }
-                
-                title = video_info.get('title', '')
-                description = video_info.get('description', '')
-                duration = video_info.get('duration', 0)
-                
-                # Get transcript
-                video_id = video_info.get('id', '')
-                try:
-                    transcript = YouTubeTranscriptApi.get_transcript(video_id, languages=['en'])
-                    transcript_text = ' '.join([entry['text'] for entry in transcript])
-                except:
-                    transcript_text = ''
-                    
-                return {
-                    'title': title,
-                    'description': description,
-                    'duration': duration,
-                    'transcript': transcript_text
-                }
-        except:
-            # Fallback to direct transcript API if yt-dlp fails
-            video_id = video_url.split('v=')[-1][:11]
             transcript = YouTubeTranscriptApi.get_transcript(video_id, languages=['en'])
             transcript_text = ' '.join([entry['text'] for entry in transcript])
             
-            return {
-                'title': 'YouTube Video',
-                'description': '',
-                'duration': 0,
-                'transcript': transcript_text
+            # Basic yt-dlp config without cookies
+            ydl_opts = {
+                'quiet': True,
+                'no_warnings': True,
+                'extract_flat': True,
+                'no_color': True,
+                'format': 'best',
+                'extractor_args': {'youtube': {
+                    'skip_download': True,
+                    'writesubtitles': True,
+                    'writeautomaticsub': True
+                }}
             }
+            
+            # Try to get basic video info
+            try:
+                with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                    info = ydl.extract_info(f"https://www.youtube.com/watch?v={video_id}", download=False)
+                    return {
+                        'title': info.get('title', 'YouTube Video'),
+                        'description': info.get('description', ''),
+                        'duration': info.get('duration', 0),
+                        'transcript': transcript_text
+                    }
+            except:
+                # Fallback with just transcript
+                return {
+                    'title': 'YouTube Video',
+                    'description': '',
+                    'duration': 0,
+                    'transcript': transcript_text
+                }
+        except Exception as e:
+            print(f"Transcript error: {str(e)}")
+            return None
                 
     except Exception as e:
         print(f"Error getting YouTube info: {str(e)}")
